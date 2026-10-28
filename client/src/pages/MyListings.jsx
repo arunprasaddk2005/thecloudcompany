@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { syncClock } from '../lib/clock.js';
+import { useNotifications } from '../lib/Notifications.jsx';
 import { formatINR } from '../lib/format.js';
 import Countdown from '../components/Countdown.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
@@ -9,14 +10,15 @@ import StatusBadge from '../components/StatusBadge.jsx';
 export default function MyListings() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState('');
+  const { version } = useNotifications(); // a new alert means something changed: refresh
 
   useEffect(() => {
     syncClock();
     const load = () => api('/me/listings').then((d) => setItems(d.auctions)).catch((e) => setError(e.message));
     load();
-    const t = setInterval(load, 4000); // statuses change as auctions close
+    const t = setInterval(load, 10000); // statuses change as auctions close
     return () => clearInterval(t);
-  }, []);
+  }, [version]);
 
   // Listings that need a decision come first.
   const rank = { PENDING_APPROVAL: 0, APPROVED: 1, ACTIVE: 2 };

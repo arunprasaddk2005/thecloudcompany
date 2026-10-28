@@ -6,6 +6,7 @@ import auctionRoutes from './routes/auctions.js';
 import meRoutes from './routes/me.js';
 import bidRoutes from './routes/bids.js';
 import saleRoutes from './routes/sale.js';
+import notificationRoutes from './routes/notifications.js';
 import { uploadsDir } from './services/upload.js';
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/auctions', auctionRoutes);
 app.use('/api/auctions', bidRoutes);
 app.use('/api/auctions', saleRoutes);
 app.use('/api/me', meRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
 

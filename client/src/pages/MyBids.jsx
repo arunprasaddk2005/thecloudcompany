@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { syncClock } from '../lib/clock.js';
+import { useNotifications } from '../lib/Notifications.jsx';
 import { formatINR } from '../lib/format.js';
 import Countdown from '../components/Countdown.jsx';
 
@@ -23,14 +24,15 @@ const ORDER = ['OUTBID', 'WON_RESERVED', 'WON_PENDING', 'LEADING', 'REJECTED', '
 export default function MyBids() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState('');
+  const { version } = useNotifications(); // a new alert means something changed: refresh
 
   useEffect(() => {
     syncClock();
     const load = () => api('/me/bids').then((d) => setItems(d.auctions)).catch((e) => setError(e.message));
     load();
-    const t = setInterval(load, 4000);
+    const t = setInterval(load, 10000);
     return () => clearInterval(t);
-  }, []);
+  }, [version]);
 
   const sorted = items && [...items].sort((a, b) => ORDER.indexOf(a.myStatus) - ORDER.indexOf(b.myStatus));
 

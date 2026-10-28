@@ -10,6 +10,7 @@ import BidPanel from '../components/BidPanel.jsx';
 import BidHistory from '../components/BidHistory.jsx';
 import SellerActions from '../components/SellerActions.jsx';
 import SaleStatus from '../components/SaleStatus.jsx';
+import { useAuctionSocket } from '../lib/socket.js';
 
 export default function AuctionDetail() {
   const { id } = useParams();
@@ -31,13 +32,15 @@ export default function AuctionDetail() {
     [id]
   );
 
-  // Live updates by polling every 2 s (Phase 4 replaces this with sockets).
+  // Live updates arrive over the socket. A slow poll is only a safety net if the connection drops.
   useEffect(() => {
     syncClock();
     load(true);
-    const t = setInterval(() => load(false), 2000);
+    const t = setInterval(() => load(false), 15000);
     return () => clearInterval(t);
   }, [load]);
+  const refresh = useCallback(() => load(false), [load]);
+  useAuctionSocket(id, refresh);
 
   const auction = bundle?.auction;
   useEffect(() => {

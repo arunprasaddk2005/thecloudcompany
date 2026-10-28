@@ -6,6 +6,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { withLock } from '../services/lock.js';
 import { applyAction } from '../services/saleFlow.js';
 import { HttpError } from '../utils/httpError.js';
+import { publishSaleChange } from '../services/events.js';
 import { publicAuction, populateAuction } from './auctions.js';
 
 const router = Router();
@@ -35,6 +36,11 @@ for (const [path, action] of Object.entries(PATHS)) {
         if (!updated) throw new HttpError(409, 'The auction changed. Refresh and try again.');
       });
       const fresh = await populateAuction(Auction.findById(req.params.id));
+      try {
+        publishSaleChange(fresh, action);
+      } catch (err) {
+        console.error('publishSaleChange failed:', err.message);
+      }
       res.json({ auction: publicAuction(fresh) });
     } catch (err) {
       next(err);

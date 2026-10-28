@@ -4,6 +4,7 @@ import Bid from '../models/Bid.js';
 import { HttpError } from '../utils/httpError.js';
 import { withLock } from './lock.js';
 import { applyBid } from './bidCore.js';
+import { publishBid } from './events.js';
 
 /**
  * The single entry point for every bid (manual bid, set/raise maximum, assistant-confirmed maximum).
@@ -55,6 +56,13 @@ export function placeBid({ auctionId, userId, kind, amount, maxAmount }) {
         })),
         { ordered: true }
       );
+    }
+
+    // Live updates and alerts must never make a saved bid fail.
+    try {
+      publishBid(doc, out, autos, userId);
+    } catch (err) {
+      console.error('publishBid failed:', err.message);
     }
     return out;
   });

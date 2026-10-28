@@ -484,7 +484,7 @@ Authenticate sockets with the JWT; join `user:<id>` automatically and `auction:<
 - [x] Phase 1: setup, auth, CRUD, upload, browse/search (code written, see README checklist; needs a live run against local MongoDB)
 - [x] Phase 2: placeBid, history, countdown, sweeper (code + 9 passing unit tests; needs live run: `npm --prefix server run stress`)
 - [x] Phase 3: approval flow and outcomes (code + 15 passing unit tests; needs a live run)
-- [ ] Phase 4: sockets, notifications, browser pop-ups
+- [x] Phase 4: sockets, notifications, browser pop-ups (code + 17 passing tests incl. a real-socket test; needs a live run)
 - [ ] Phase 5: auto-bid and extension
 - [ ] Phase 6: Wants
 - [ ] Phase 7: Q&A
@@ -518,8 +518,16 @@ Authenticate sockets with the JWT; join `user:<id>` automatically and `auction:<
 - Handover is confirmed by the seller only. Auto-expiry of an unanswered approval was cut.
 - UI: `SellerActions` (every action has a confirm step, reasons where relevant), `SaleStatus` (+ contact card), `MyBids` page, nav link, My Listings sorts "needs your decision" first. Pages poll (2 s detail, 4 s lists).
 - Phase 4 must add notification calls in: sweeper close (winner, seller, losing bidders), sale.js actions (winner/bidders), and bidEngine (`out.outbid`).
-**Known bugs / TODOs:** none known. Phases 2 and 3 not yet run against a live MongoDB.
-**Next step:** run `npm --prefix server test`, then the Phase 3 checklist in README.md with two accounts, then start Phase 4 (Socket.io live updates replacing polling, Notification collection + bell, browser pop-ups).
+**Phase 4 implementation notes:**
+- Server: `socket.js` (Socket.io on the same HTTP server; JWT in the handshake `auth.token`; invalid token = anonymous), `services/realtime.js` (safe no-op emitters), `services/notify.js` (store + push, never throws), `services/events.js` (`publishBid`, `publishClosed`, `publishSaleChange`), `routes/notifications.js` (`GET /api/notifications`, `POST /read-all`, `POST /:id/read`). `index.js` now creates `http.createServer(app)` and passes `publishClosed` to the sweeper.
+- Rooms: `auction:<id>` (public), `browse`, `user:<id>` (private alerts, only with a valid token). Events: `bid:new`, `auction:extended`, `auction:closed`, `auction:updated`, `browse:changed`, `notification:new`.
+- Alerts created: OUTBID (or "your maximum was passed"), first bid on your listing, WON, NEEDS_DECISION (seller), LOST, UNSOLD, APPROVE, REJECT, HANDOVER, PICKUP_FAILED, CANCELLED. The person who just bid is not alerted about their own bid. No alert on extension (the countdown updates live for everyone instead).
+- Client: `lib/socket.js` (shared socket, `useAuctionSocket`, `useBrowseSocket`), `lib/Notifications.jsx` (provider: list, unread, browser permission, pop-up when `document.hidden`, tab title shows "(n)"), `components/NotificationBell.jsx`. Auction page refreshes on socket events with a 15 s safety poll; Browse refreshes (debounced); My bids / My listings refresh on every new alert plus a 10 s poll.
+- Browser pop-ups: no service worker. They only fire while the app is open in a background tab, as the brief requires. Permission is requested from a button in the bell menu.
+- Vite proxies `/socket.io` with `ws: true`. Run ONE server process (lock + sockets are in memory).
+- Not yet done: Wants matching hook (Phase 6) should call `notify(userId, 'WANT_MATCH', ..., auctionId)`; Q&A (Phase 7) should notify seller on a new question and the asker on an answer.
+**Known bugs / TODOs:** none known. Phases 2 to 4 not yet run against a live MongoDB.
+**Next step:** run `npm --prefix server test`, then the Phase 4 checklist in README.md with two browsers, then start Phase 5 review (auto-bid and extension are already built, so Phase 5 is mostly hardening and a live bid-war test) and move on to Phase 6 (Wants).
 
 
 ---

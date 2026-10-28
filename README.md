@@ -48,7 +48,18 @@ Photos go to Cloudinary as soon as all three keys are filled in.
 - [ ] My bids (buyer) shows Leading, Outbid, Won, Reserved, Lost correctly
 - [ ] An auction with no bids ends as Unsold
 
-Not built yet: sockets (pages poll), notifications, wants, Q&A, assistant.
+## Phase 4 checklist (live updates and notifications)
+
+- [ ] `npm --prefix server test` passes (17 tests, including a real socket test)
+- [ ] Two browsers on the same auction: a bid in one appears in the other within a moment, with no refresh
+- [ ] Browse page: prices change live when someone bids
+- [ ] The outbid user gets a bell alert ("You've been outbid ..."), unread count badge, and the tab title shows "(1)"
+- [ ] Bell menu: click an alert to open the auction, "Mark all read" works, alerts are still there after logging out and in
+- [ ] Click "Turn on browser notifications", allow it, switch to another tab, have the other account outbid you: a pop-up appears
+- [ ] Auction closing: winner, seller and losing bidders each get an alert; seller approve/reject/handover alerts the winner
+- [ ] Last-30-seconds bid: the countdown jumps to 60 s on BOTH screens
+
+Not built yet: wants, Q&A, assistant.
 
 ## Known limitations (Phase 1)
 

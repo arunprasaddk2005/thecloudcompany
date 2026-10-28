@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
+import NotificationBell from './NotificationBell.jsx';
 
 const linkClass = ({ isActive }) =>
   `rounded-md px-3 py-2 text-base font-semibold transition-colors ${
@@ -37,6 +38,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              <NotificationBell />
               <span className="hidden text-base text-white/80 sm:inline">{user.name}</span>
               <button
                 className="btn border border-white/30 text-white hover:bg-white/10"

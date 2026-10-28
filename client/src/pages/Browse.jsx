@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api.js';
 import { CATEGORIES, CONDITIONS } from '../lib/format.js';
 import AuctionCard from '../components/AuctionCard.jsx';
+import { useBrowseSocket } from '../lib/socket.js';
 
 const SORTS = [
   ['closing', 'Ending soonest'],
@@ -18,6 +19,15 @@ export default function Browse() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
+  const reloadTimer = useRef(null);
+
+  // Prices and statuses change live; refresh the list shortly after any change (debounced).
+  const onChanged = useCallback(() => {
+    clearTimeout(reloadTimer.current);
+    reloadTimer.current = setTimeout(() => setReloadKey((k) => k + 1), 400);
+  }, []);
+  useBrowseSocket(onChanged);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(filters.q), 300);
@@ -36,7 +46,7 @@ export default function Browse() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQ, filters.category, filters.condition, filters.minPrice, filters.maxPrice, filters.closingSoon, filters.sort, page]);
+  }, [debouncedQ, filters.category, filters.condition, filters.minPrice, filters.maxPrice, filters.closingSoon, filters.sort, page, reloadKey]);
 
   const set = (k) => (e) => setFilters((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const dirty = JSON.stringify(filters) !== JSON.stringify(EMPTY);
