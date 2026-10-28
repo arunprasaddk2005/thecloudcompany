@@ -126,7 +126,7 @@ export default function AuctionDetail() {
                 <Countdown closesAt={a.closesAt} large />
               </div>
               <p className="text-base text-ink/70">
-                Next bid must be at least <strong className="num">{formatINR(nextMinBid(a))}</strong>. Minimum increment is{' '}
+                Next must be at least <strong className="num">{formatINR(nextMinBid(a))}</strong>. Minimum increment is{' '}
                 {formatINR(a.minIncrement)}.
               </p>
               {extendedFlash && (
