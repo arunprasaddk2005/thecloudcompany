@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-pine;
+  }
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded-md border border-ink/20 bg-white px-3 py-2 text-base text-ink placeholder:text-ink/40 focus:border-pine disabled:bg-ink/5 disabled:text-ink/50;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-pine text-white hover:bg-pine-deep;
+  }
+  .btn-quiet {
+    @apply btn border border-ink/20 bg-white text-ink hover:border-ink/40;
+  }
+  .btn-danger {
+    @apply btn border border-brick/40 bg-white text-brick hover:bg-brick-soft;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
